@@ -15,6 +15,17 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+}
+
+sourceSets {
+    // add karate feature files and other items into resources for test
+    test {
+        resources {
+            srcDirs += ['src/test/java']
+            exclude '**/*.java', '**/*.md'
+        }
+    }
 }
 
 dependencies {
@@ -23,9 +34,43 @@ dependencies {
     
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-resttestclient'
+    testImplementation 'io.karatelabs:karate-junit5:1.5.2'
+
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+tasks.withType(Test).configureEach {
+    scanForTestClasses = true
+    useJUnitPlatform()
+}
+
+test {
+    description = 'Run unit tests.'
+    filter {
+        includeTestsMatching "*Test"
+        excludeTestsMatching "*TestRunner" // Prevent running api tests in unit test phase
+    }
+}
+
+tasks.register('testApis', Test) {
+    description = 'Run api tests.'
+    group = 'verification'
+    mustRunAfter test
+
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+
+    // if the property is passed to the gradle command line,
+    // then pass that through to the JVM executing this task so it's available to TestRunners.
+    if (System.getProperty('karate.baseUrl') != null) {
+        systemProperty 'karate.baseUrl', System.getProperty('karate.baseUrl')
+    }
+
+    filter {
+        includeTestsMatching "*TestRunner" // target Karate runners
+    }
 }
