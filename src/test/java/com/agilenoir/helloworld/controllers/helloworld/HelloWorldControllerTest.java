@@ -1,4 +1,4 @@
-package com.agilenoir.helloworld;
+package com.agilenoir.helloworld.controllers.helloworld;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +9,7 @@ import org.springframework.http.MediaType;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
-class HelloWorldApplicationTests {
+class HelloWorldControllerTest {
 
     @Autowired
     private RestTestClient restTestClient;
